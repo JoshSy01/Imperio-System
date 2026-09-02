@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$types';
+	import { page } from "$app/stores";
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	const tipoSelected = $derived(Number($page.url.searchParams.get("tipoSelected")) || 1);
 
 	let loggingOut = $state(false);
 	let showModal = $state(false);
@@ -13,6 +16,7 @@
 	let activatingId = $state<number | null>(null);
 	let searchQuery = $state('');
 	let filterEstado = $state('true');
+	let filterTipo = $state(tipoSelected.toString());
 	let porcentajeGanancia = $state(50);
 	let cantidades = $state<Record<number, number>>({});
 	let selectedProducts = $state<Set<number>>(new Set());
@@ -70,7 +74,8 @@
 				?.toLowerCase()
 				.includes(searchQuery.toLowerCase());
 			const matchEstado = filterEstado !== '' ? String(p.estado) === filterEstado : true;
-			return matchSearch && matchEstado;
+			const matchTipo = filterTipo !== '' ? String(p.idTipo) === filterTipo : true;
+			return matchSearch && matchEstado && matchTipo;
 		})
 	);
 
@@ -237,16 +242,29 @@
 		<!-- Page Header -->
 		<div class="page-header">
 			<div class="page-header-left">
-				<div class="page-icon">🥛</div>
-				<div>
-					<h1 class="page-title">Gestión de Yogurt</h1>
-					<p class="page-subtitle">
-						{data.productos.length} producto{data.productos.length !== 1 ? 's' : ''} registrado{data
-							.productos.length !== 1
-							? 's'
-							: ''}
-					</p>
-				</div>
+				{#if tipoSelected === 1}
+					<div class="page-icon">🥛</div>
+					<div>
+						<h1 class="page-title">Gestión de Yogurt</h1>
+						<p class="page-subtitle">
+							{data.productos.length} producto{data.productos.length !== 1 ? 's' : ''} registrado{data
+								.productos.length !== 1
+								? 's'
+								: ''}
+						</p>
+					</div>
+				{:else if tipoSelected === 2}
+					<div class="page-icon">🥛</div>
+					<div>
+						<h1 class="page-title">Gestión de Proteínas</h1>
+						<p class="page-subtitle">
+							{data.productos.length} producto{data.productos.length !== 1 ? 's' : ''} registrado{data
+								.productos.length !== 1
+								? 's'
+								: ''}
+						</p>
+					</div>
+				{/if}
 			</div>
 			<button id="btn-agregar" class="btn-add" onclick={() => (showModal = true)}>
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -562,6 +580,8 @@
 					</label>
 				</div>
 
+				<input type="hidden" name="tipoSelected" value={tipoSelected} />
+
 				<div class="modal-actions">
 					<button type="button" class="btn-cancel" onclick={closeModal}>Cancelar</button>
 					<button type="submit" class="btn-submit" disabled={adding}>
@@ -698,7 +718,7 @@
 				}}
 			>
 				<input type="hidden" name="id_producto" value={seleccionResumen.map(i => i.id).join(',')} />
-				<input type="hidden" name="id_tipo" value="1" />
+				<input type="hidden" name="id_tipo" value={tipoSelected} />
 				<input type="hidden" name="precios_productos" value={seleccionResumen.map(i => i.precio).join(',')} />
 				<input type="hidden" name="cantidad_productos" value={seleccionResumen.map(i => i.cantidad).join(',')} />
 				<input type="hidden" name="estado" value="true" />
