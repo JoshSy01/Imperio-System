@@ -675,68 +675,103 @@
 				</button>
 			</div>
 
-			<div class="registro-body">
-				<!-- Tabla de productos seleccionados -->
-				<div class="registro-table-wrap">
-					<table class="registro-table">
-						<thead>
-							<tr>
-								<th>Producto</th>
-								<th>Precio</th>
-								<th>Cantidad</th>
-								<th>Subtotal</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each seleccionResumen as item (item.id)}
+			<form 
+				method="POST"
+				action="?/agregarRegistro"
+				enctype="multipart/form-data"
+				use:enhance={({ formData }) => {
+					adding = true;
+					const now = new Date();
+					const pad = (n: number) => String(n).padStart(2, '0');
+					const localFecha = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+					formData.set('fecha', localFecha);
+
+					return async ({ update, result }) => {
+						adding = false;
+						if (result.type === 'success') {
+							showModalRegistro = false;
+							selectedProducts = new Set();
+							porcentajeGanancia = 0;
+						}
+						await update();
+					};
+				}}
+			>
+				<input type="hidden" name="id_producto" value={seleccionResumen.map(i => i.id).join(',')} />
+				<input type="hidden" name="id_tipo" value="1" />
+				<input type="hidden" name="precios_productos" value={seleccionResumen.map(i => i.precio).join(',')} />
+				<input type="hidden" name="cantidad_productos" value={seleccionResumen.map(i => i.cantidad).join(',')} />
+				<input type="hidden" name="estado" value="true" />
+
+				<div class="registro-body">
+					<!-- Tabla de productos seleccionados -->
+					<div class="registro-table-wrap">
+						<table class="registro-table">
+							<thead>
 								<tr>
-									<td>{item.nombre}</td>
-									<td>{formatPrice(item.precio)}</td>
-									<td class="td-center">{item.cantidad}</td>
-									<td class="td-right">{formatPrice(item.subtotal)}</td>
+									<th>Producto</th>
+									<th>Precio</th>
+									<th>Cantidad</th>
+									<th>Subtotal</th>
 								</tr>
-							{/each}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{#each seleccionResumen as item (item.id)}
+									<tr>
+										<td>{item.nombre}</td>
+										<td>{formatPrice(item.precio)}</td>
+										<td class="td-center">{item.cantidad}</td>
+										<td class="td-right">{formatPrice(item.subtotal)}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Total -->
+					<div class="registro-total">
+						<span>Total</span>
+						<span class="total-value">{formatPrice(totalSeleccion)}</span>
+					</div>
+
+					<!-- Porcentaje de Ganancia -->
+					<div class="form-group">
+						<label class="form-label" for="modal-porcentaje">Porcentaje de Ganancia (%)</label>
+						<input
+							id="modal-porcentaje"
+							name="porcentaje_ganancia"
+							type="number"
+							class="form-input"
+							bind:value={porcentajeGanancia}
+							min="0"
+							max="100"
+							step="0.1"
+							placeholder="ej. 30"
+						/>
+						{#if porcentajeGanancia > 0}
+							<p class="ganancia-hint">
+								Ganancia estimada: <strong>{formatPrice(totalSeleccion * (porcentajeGanancia / 100))}</strong>
+							</p>
+						{/if}
+					</div>
 				</div>
 
-				<!-- Total -->
-				<div class="registro-total">
-					<span>Total</span>
-					<span class="total-value">{formatPrice(totalSeleccion)}</span>
+				<div class="modal-actions">
+					<button type="button" class="btn-cancel" onclick={closeModalRegistro}>Cancelar</button>
+					<button type="submit" class="btn-submit" disabled={adding}>
+						{#if adding}
+							<span class="spinner-sm"></span>
+							Guardando...
+						{:else}
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+							Guardar Registro
+						{/if}
+					</button>
 				</div>
-
-				<!-- Porcentaje de Ganancia -->
-				<div class="form-group">
-					<label class="form-label" for="modal-porcentaje">Porcentaje de Ganancia (%)</label>
-					<input
-						id="modal-porcentaje"
-						type="number"
-						class="form-input"
-						bind:value={porcentajeGanancia}
-						min="0"
-						max="100"
-						step="0.1"
-						placeholder="ej. 30"
-					/>
-					{#if porcentajeGanancia > 0}
-						<p class="ganancia-hint">
-							Ganancia estimada: <strong>{formatPrice(totalSeleccion * (porcentajeGanancia / 100))}</strong>
-						</p>
-					{/if}
-				</div>
-			</div>
-
-			<div class="modal-actions">
-				<button type="button" class="btn-cancel" onclick={closeModalRegistro}>Cancelar</button>
-				<!-- Por ahora solo cierra; la lógica de envío a BD se implementa después -->
-				<button type="button" class="btn-submit" onclick={closeModalRegistro}>
-					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-						<polyline points="20 6 9 17 4 12" />
-					</svg>
-					Confirmar Registro
-				</button>
-			</div>
+			</form>
+				
 		</div>
 	</div>
 {/if}

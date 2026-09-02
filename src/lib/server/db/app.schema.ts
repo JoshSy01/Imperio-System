@@ -21,14 +21,14 @@ export const producto = pgTable('producto', {
 
 export const registro = pgTable('registro', {
 	idRegistro: bigint('id_registro', { mode: 'number' }).primaryKey().generatedByDefaultAsIdentity(),
-	fecha: timestamp('fecha').defaultNow().notNull(),
-	idProductos: bigint('id_producto', { mode: 'number' }).array().notNull(),
+	fecha: timestamp('fecha', { mode: 'string' }).defaultNow().notNull(),
+	idProductos: bigint('id_productos', { mode: 'number' }).array().notNull(),
 	idTipo: bigint('id_tipo', { mode: 'number' }).references(() => tipo.idTipo, {
 		onUpdate: 'cascade',
 		onDelete: 'set null'
 	}),
-	preciosProductos: doublePrecision('precio_producto').array().notNull(),
-	cantidadProductos: bigint('cantidad_producto', { mode: 'number' }).array().notNull(),
+	preciosProductos: doublePrecision('precios_productos').array().notNull(),
+	cantidadProductos: bigint('cantidad_productos', { mode: 'number' }).array().notNull(),
 	porcentajeGanancia: doublePrecision('porcentaje_ganancia'),
 	estado: boolean('estado')
 });

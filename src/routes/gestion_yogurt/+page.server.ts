@@ -148,26 +148,40 @@ export const actions: Actions = {
 	agregarRegistro: async ({ request }) => {
 		const data = await request.formData();
 		const idProductosRaw = data.get('id_producto')?.toString();
+		const idTipoRaw = data.get('id_tipo')?.toString();
 		const fechaRaw = data.get('fecha')?.toString();
 		const preciosProductosRaw = data.get('precios_productos')?.toString();
 		const cantidadProductosRaw = data.get('cantidad_productos')?.toString();
 		const porcentajeGananciaRaw = data.get('porcentaje_ganancia')?.toString();
 		const estadoRaw = data.get('estado')?.toString();
 
-		const idProductosArray = idProductosRaw!.split(',').map(Number);
-		const preciosProductosArray = preciosProductosRaw!.split(',').map(Number);
-		const cantidadProductosArray = cantidadProductosRaw!.split(',').map(Number);
-		const porcentajeGanancia = porcentajeGananciaRaw ? Number(porcentajeGananciaRaw) : undefined;
-		const fecha = fechaRaw ? new Date(fechaRaw) : new Date();
-		const estado = estadoRaw === 'true';
+		if (!idProductosRaw || !preciosProductosRaw || !cantidadProductosRaw) {
+			return fail(400, { error: 'No se enviaron productos para el registro.' });
+		}
 
-		await db.insert(registro).values({
-			idProductos: idProductosArray,
-			preciosProductos: preciosProductosArray,
-			cantidadProductos: cantidadProductosArray,
-			porcentajeGanancia,
-			fecha,
-			estado
-		});
+		try {
+			const idProductosArray = idProductosRaw.split(',').map(Number);
+			const preciosProductosArray = preciosProductosRaw.split(',').map(Number);
+			const cantidadProductosArray = cantidadProductosRaw.split(',').map(Number);
+			const idTipo = idTipoRaw ? parseInt(idTipoRaw) : 1;
+			const porcentajeGanancia = porcentajeGananciaRaw ? Number(porcentajeGananciaRaw) : undefined;
+			const fecha = fechaRaw || new Date().toISOString().slice(0, 19).replace('T', ' ');
+			const estado = estadoRaw !== undefined ? estadoRaw === 'true' : true;
+
+			await db.insert(registro).values({
+				fecha,
+				idProductos: idProductosArray,
+				idTipo,
+				preciosProductos: preciosProductosArray,
+				cantidadProductos: cantidadProductosArray,
+				porcentajeGanancia,
+				estado
+			});
+
+			return { success: true };
+		} catch (error) {
+			console.error('Error al agregar registro:', error);
+			return fail(500, { error: 'Ocurrió un error al guardar el registro en la base de datos.' });
+		}
 	}
 };
