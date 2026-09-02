@@ -114,35 +114,48 @@
 		if (e.key === 'Escape') closeModal();
 	}
 
-	// Estado para saber si el usuario está arrastrando un archivo sobre la zona
-    let isDragging = $state(false);
-    
-    // Referencia al input oculto
+	let isDragging = $state(false);
     let fileInput: HTMLInputElement;
+    
+    // Cambiamos el array por un único objeto que puede ser null cuando no hay imagen
+    let image = $state<{ name: string, url: string } | null>(null);
 
-    // Función para manejar cuando se sueltan los archivos (Drag & Drop)
     function handleDrop(e: DragEvent) {
         e.preventDefault();
         isDragging = false;
-        
-        const files = e.dataTransfer?.files;
-        if (files && files.length > 0) {
-            procesarArchivos(files);
-        }
+        if (e.dataTransfer?.files) procesarArchivos(e.dataTransfer.files);
     }
 
-    // Función para manejar la selección desde el explorador de archivos (clic)
     function handleFileSelect(e: Event) {
         const target = e.target as HTMLInputElement;
-        if (target.files && target.files.length > 0) {
-            procesarArchivos(target.files);
+        if (target.files) procesarArchivos(target.files);
+    }
+
+    function procesarArchivos(files: FileList) {
+        // Buscamos solo el primer archivo que sea una imagen
+        const file = Array.from(files).find(f => f.type.startsWith('image/'));
+        
+        if (file) {
+            // Si ya existía una imagen previa, liberamos la memoria de su URL
+            if (image) {
+                URL.revokeObjectURL(image.url);
+            }
+
+            // Guardamos solo la nueva imagen
+            image = {
+                name: file.name,
+                url: URL.createObjectURL(file) 
+            };
         }
     }
 
-    // Aquí puedes agregar lo que quieres hacer con las imágenes
-    function procesarArchivos(files: FileList) {
-        console.log("Archivos listos para subir:", files);
-        // Por ejemplo: subir a un servidor, mostrar preview, etc.
+    function removeImage(e: Event) {
+        e.stopPropagation(); 
+        
+        if (image) {
+            URL.revokeObjectURL(image.url);
+            image = null; // Volvemos al estado inicial vacío
+        }
     }
 
 
@@ -462,6 +475,7 @@
 						adding = false;
 						showModal = false;
 						await update();
+						location.reload();
 					};
 				}}
 				class="modal-form"
@@ -496,39 +510,48 @@
 				</div>
 				<label for="upload-image" class="form-label">Imagen del Producto</label>
 
-								<!-- Contenedor principal de la tarjeta -->
 				<div class="upload-card">
-					
 
-					<!-- Zona de arrastrar y soltar -->
-					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<!-- svelte-ignore a11y_no_static_element_interactions -->
-					<div 
-						class="drop-zone {isDragging ? 'dragging' : ''}"
-						ondragover={(e) => { e.preventDefault(); isDragging = true; }}
-						ondragleave={() => isDragging = false}
-						ondrop={handleDrop}
-						onclick={() => fileInput.click()} 
-					>
-						<!-- Icono de nube (SVG) -->
-						<svg xmlns="http://www.w3.org/2000/svg" width="40" height="48" viewBox="0 0 24 24" fill="none" stroke="#a0a0b2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div 
+					class="drop-zone {isDragging ? 'dragging' : ''}"
+					ondragover={(e) => { e.preventDefault(); isDragging = true; }}
+					ondragleave={() => isDragging = false}
+					ondrop={handleDrop}
+					onclick={() => fileInput.click()} 
+				>
+					{#if !image}
+						<!-- Si no hay imagen, muestra el ícono de la nube -->
+						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a0a0b2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 							<path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1332 20.1866 10.1983 17.8735 10.0195C17.4338 6.62125 14.5162 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01142 11.4645 4.03357 11.6917C2.29658 12.3996 1 14.0734 1 16C1 18.7614 3.23858 21 6 21H11" />
 							<path d="M12 13L12 21M12 13L9 16M12 13L15 16" />
 						</svg>
+						<p class="drop-text">Drag and drop a file</p>
+					{:else}
+						<!-- Si hay imagen, muestra solo esa vista previa -->
+						<div class="preview-container">
+							<div class="image-preview">
+								<img src={image.url} alt={image.name} />
+								<button class="remove-btn" onclick={removeImage} aria-label="Eliminar imagen">
+									✕
+								</button>
+							</div>
+						</div>
+					{/if}
 
-						<p class="drop-text">Drag and drop files</p>
-
-						<!-- Input real oculto -->
-						<input 
-							type="file" 
-							accept="image/*" 
-							bind:this={fileInput} 
-							onchange={handleFileSelect} 
-							multiple
-							hidden 
-						/>
-					</div>
+					<!-- Se eliminó el atributo "multiple" de este input -->
+					<input 
+					id="imagen"
+					name="imagen"
+					type="file" 
+					accept="image/*" 
+					bind:this={fileInput} 
+					onchange={handleFileSelect} 
+					hidden 
+					/>
 				</div>
+			</div>
 
 				<div class="modal-actions">
 					<button type="button" class="btn-cancel" onclick={closeModal}>Cancelar</button>
@@ -1412,6 +1435,54 @@
         margin-top: 15px;
         color: #bcbcda;
         font-size: 14px;
+    }
+
+	/* --- NUEVOS ESTILOS PARA LA VISTA PREVIA --- */
+    .preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .image-preview {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #ff4d4f;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+    }
+
+    .remove-btn:hover {
+        transform: scale(1.1);
+        background-color: #d9363e;
     }
 
 	/* ── Responsive ── */
