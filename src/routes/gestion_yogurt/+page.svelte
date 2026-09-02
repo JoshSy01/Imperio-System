@@ -115,6 +115,7 @@
 	}
 
 	let isDragging = $state(false);
+    // svelte-ignore non_reactive_update
     let fileInput: HTMLInputElement;
     
     // Cambiamos el array por un único objeto que puede ser null cuando no hay imagen
@@ -150,11 +151,15 @@
     }
 
     function removeImage(e: Event) {
+        e.preventDefault();
         e.stopPropagation(); 
         
         if (image) {
             URL.revokeObjectURL(image.url);
             image = null; // Volvemos al estado inicial vacío
+        }
+        if (fileInput) {
+            fileInput.value = '';
         }
     }
 
@@ -320,6 +325,7 @@
 						aria-label="Seleccionar {p.nombreProducto}"
 						tabindex="0"
 					>
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div 
 							class="product-image-wrap"
 							onclick={() => toggleSelection(p.idProducto, p.estado ?? false)}
@@ -331,14 +337,14 @@
 							{/if}
 						</div>
 						<div class="product-body">
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div class="product-tipo"
 								onclick={() => toggleSelection(p.idProducto, p.estado ?? false)}
 							>
 								{p.tipo?.nombreTipo ?? 'Sin tipo'}
 							</div>
-							<div
-								onclick={() => toggleSelection(p.idProducto, p.estado ?? false)}
-							>
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div onclick={() => toggleSelection(p.idProducto, p.estado ?? false)}>
 								<h3 class="product-name">{p.nombreProducto ?? 'Sin nombre'}</h3>
 							</div>
 							<button type="button" class="btn-price" onclick={() => { if (p.estado) openModalPrice(p.idProducto)}}>{formatPrice(p.precio ?? 0)}</button>
@@ -451,13 +457,19 @@
 
 <!-- Modal: Agregar Producto -->
 {#if showModal}
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" onclick={closeModal} role="dialog" aria-modal="true" aria-label="Agregar producto" tabindex="-1">
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="modal" onclick={(e) => e.stopPropagation()}>
+	<div 
+		class="modal-backdrop" 
+		onclick={(e) => { if (e.target === e.currentTarget) closeModal(); }} 
+		onkeydown={(e) => { if (e.key === 'Escape') closeModal(); }}
+		role="dialog" 
+		aria-modal="true" 
+		aria-label="Agregar producto" 
+		tabindex="-1"
+	>
+		<div class="modal">
 			<div class="modal-header">
 				<h2 class="modal-title">Agregar Producto</h2>
-				<button class="modal-close" onclick={closeModal} aria-label="Cerrar">
+				<button type="button" class="modal-close" onclick={closeModal} aria-label="Cerrar">
 					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 						<line x1="18" y1="6" x2="6" y2="18" />
 						<line x1="6" y1="6" x2="18" y2="18" />
@@ -508,50 +520,47 @@
 						</div>
 					</div>
 				</div>
-				<label for="upload-image" class="form-label">Imagen del Producto</label>
+				<span class="form-label">Imagen del Producto</span>
 
 				<div class="upload-card">
-
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div 
-					class="drop-zone {isDragging ? 'dragging' : ''}"
-					ondragover={(e) => { e.preventDefault(); isDragging = true; }}
-					ondragleave={() => isDragging = false}
-					ondrop={handleDrop}
-					onclick={() => fileInput.click()} 
-				>
-					{#if !image}
-						<!-- Si no hay imagen, muestra el ícono de la nube -->
-						<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a0a0b2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1332 20.1866 10.1983 17.8735 10.0195C17.4338 6.62125 14.5162 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01142 11.4645 4.03357 11.6917C2.29658 12.3996 1 14.0734 1 16C1 18.7614 3.23858 21 6 21H11" />
-							<path d="M12 13L12 21M12 13L9 16M12 13L15 16" />
-						</svg>
-						<p class="drop-text">Drag and drop a file</p>
-					{:else}
-						<!-- Si hay imagen, muestra solo esa vista previa -->
-						<div class="preview-container">
-							<div class="image-preview">
-								<img src={image.url} alt={image.name} />
-								<button class="remove-btn" onclick={removeImage} aria-label="Eliminar imagen">
-									✕
-								</button>
+					<label 
+						for="imagen"
+						class="drop-zone {isDragging ? 'dragging' : ''}"
+						ondragover={(e) => { e.preventDefault(); isDragging = true; }}
+						ondragleave={() => isDragging = false}
+						ondrop={handleDrop}
+					>
+						{#if !image}
+							<!-- Si no hay imagen, muestra el ícono de la nube -->
+							<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a0a0b2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1332 20.1866 10.1983 17.8735 10.0195C17.4338 6.62125 14.5162 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2335 4.01142 11.4645 4.03357 11.6917C2.29658 12.3996 1 14.0734 1 16C1 18.7614 3.23858 21 6 21H11" />
+								<path d="M12 13L12 21M12 13L9 16M12 13L15 16" />
+							</svg>
+							<p class="drop-text">Drag and drop a file</p>
+						{:else}
+							<!-- Si hay imagen, muestra solo esa vista previa -->
+							<div class="preview-container">
+								<div class="image-preview">
+									<img src={image.url} alt={image.name} />
+									<button type="button" class="remove-btn" onclick={removeImage} aria-label="Eliminar imagen">
+										✕
+									</button>
+								</div>
 							</div>
-						</div>
-					{/if}
+						{/if}
 
-					<!-- Se eliminó el atributo "multiple" de este input -->
-					<input 
-					id="imagen"
-					name="imagen"
-					type="file" 
-					accept="image/*" 
-					bind:this={fileInput} 
-					onchange={handleFileSelect} 
-					hidden 
-					/>
+						<!-- Se eliminó el atributo \"multiple\" de este input -->
+						<input 
+							id="imagen"
+							name="imagen"
+							type="file" 
+							accept="image/*" 
+							bind:this={fileInput} 
+							onchange={handleFileSelect} 
+							hidden 
+						/>
+					</label>
 				</div>
-			</div>
 
 				<div class="modal-actions">
 					<button type="button" class="btn-cancel" onclick={closeModal}>Cancelar</button>
@@ -573,12 +582,19 @@
 {/if}
 
 {#if showModalPrice }
-	<div class="modal-backdrop" onclick={closeModal} role="dialog" aria-modal="true" aria-label="Cambiar Precio" tabindex="-1">
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="modal" onclick={(e) => e.stopPropagation()}>
+	<div 
+		class="modal-backdrop" 
+		onclick={(e) => { if (e.target === e.currentTarget) closeModal(); }} 
+		onkeydown={(e) => { if (e.key === 'Escape') closeModal(); }}
+		role="dialog" 
+		aria-modal="true" 
+		aria-label="Cambiar Precio" 
+		tabindex="-1"
+	>
+		<div class="modal">
 			<div class="modal-header">
 				<h2 class="modal-title">Cambiar Precio</h2>
-				<button class="modal-close" onclick={closeModal} aria-label="Cerrar">
+				<button type="button" class="modal-close" onclick={closeModal} aria-label="Cerrar">
 					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 						<line x1="18" y1="6" x2="6" y2="18" />
 						<line x1="6" y1="6" x2="18" y2="18" />
@@ -639,10 +655,16 @@
 
 <!-- Modal: Agregar Registro -->
 {#if showModalRegistro}
-	<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-	<div class="modal-backdrop" onclick={closeModalRegistro} role="dialog" aria-modal="true" aria-label="Agregar Registro" tabindex="-1">
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-		<div class="modal modal-registro" onclick={(e) => e.stopPropagation()}>
+	<div 
+		class="modal-backdrop" 
+		onclick={(e) => { if (e.target === e.currentTarget) closeModalRegistro(); }} 
+		onkeydown={(e) => { if (e.key === 'Escape') closeModalRegistro(); }}
+		role="dialog" 
+		aria-modal="true" 
+		aria-label="Agregar Registro" 
+		tabindex="-1"
+	>
+		<div class="modal modal-registro">
 			<div class="modal-header">
 				<h2 class="modal-title">Resumen de Registro</h2>
 				<button class="modal-close" onclick={closeModalRegistro} aria-label="Cerrar">
@@ -729,13 +751,6 @@
 		position: relative;
 		overflow-x: hidden;
 		color: #f1f5f9;
-	}
-
-	/* Chrome, Safari, Edge, Opera */
-	#num-cantidad::-webkit-outer-spin-button,
-	#num-cantidad::-webkit-inner-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
 	}
 
 	/* ── Orbs ── */
@@ -1068,16 +1083,7 @@
 		color: #f1f5f9; line-height: 1.3;
 		margin-bottom: 0.5rem;
 	}
-	.product-price {
-		font-size: 1.1rem; font-weight: 700;
-		color: #d4af6a;
-		background: none;
-		border: none;
-		outline: none;
-		cursor: pointer;
-		width: 50%;
-		text-align: left;
-	}
+
 
 	.product-footer {
 		padding: 0.7rem 1.1rem;
@@ -1141,7 +1147,7 @@
 		color: #94a3b8; letter-spacing: 0.02em;
 	}
 	.required { color: #f87171; }
-	.form-input, .form-select {
+	.form-input {
 		padding: 0.7rem 0.9rem;
 		background: rgba(255,255,255,0.06);
 		border: 1px solid rgba(255,255,255,0.1);
@@ -1151,12 +1157,11 @@
 		width: 100%;
 	}
 	.form-input::placeholder { color: #4b5563; }
-	.form-input:focus, .form-select:focus {
+	.form-input:focus {
 		outline: none;
 		border-color: rgba(182,145,76,0.5);
 		background: rgba(255,255,255,0.08);
 	}
-	.form-select option { background: #0f172a; }
 
 	.modal-actions {
 		display: flex; gap: 0.75rem; justify-content: flex-end;
@@ -1184,17 +1189,6 @@
 	.btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(182,145,76,0.45); }
 	.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-	#num-cantidad{
-		width: 100%;
-		padding: 10px;
-		background-color: rgba(248, 249, 250, 0.46);
-		border-radius: 10px;
-		outline: none;
-		border: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
 
 	/* ── Spinner ── */
 	.spinner-sm {
