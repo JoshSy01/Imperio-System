@@ -77,7 +77,7 @@
 				<div class="info-card">
 					<img src="/src/images/yogurt.png" alt="Logo" class="info-logo">
 					<a href="/gestion_productos?tipoSelected=1" class="btn-primary">Gestión Registro Yogurt</a>
-					<a href="/visualizar_productos?tipoSelected=1" class="btn-secundary">Visualizar registros</a>
+					<a href="/visualizar_registro?tipoSelected=1" class="btn-secundary">Visualizar registros</a>
 				</div>
 
 
@@ -85,7 +85,7 @@
 				<div class="info-card">
 					<img src="/src/images/proteinas.png" alt="Logo" class="info-logo">
 					<a href="/gestion_productos?tipoSelected=2" class="btn-primary">Gestión Registro Proteínas</a>
-					<a href="/visualizar_productos?tipoSelected=2" class="btn-secundary">Visualizar registros</a>
+					<a href="/visualizar_registro?tipoSelected=2" class="btn-secundary">Visualizar registros</a>
 				</div>
 			
 		</div>

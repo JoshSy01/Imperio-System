@@ -196,7 +196,9 @@
 	<header class="navbar">
 		<div class="navbar-brand">
 			<div class="brand-icon">
-				<img src="/src/images/logo.png" width="50" height="50" alt="Imperio" class="brand-logo" />
+				<a href="/">
+                    <img src="/src/images/logo.png" width="50" height="50" alt="Imperio" class="brand-logo" />
+                </a>
 			</div>
 		</div>
 
@@ -254,7 +256,7 @@
 						</p>
 					</div>
 				{:else if tipoSelected === 2}
-					<div class="page-icon">🥛</div>
+					<div class="page-icon">⚡</div>
 					<div>
 						<h1 class="page-title">Gestión de Proteínas</h1>
 						<p class="page-subtitle">
