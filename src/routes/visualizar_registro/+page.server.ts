@@ -3,7 +3,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { auth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import { producto, tipo, registro } from '$lib/server/db/schema';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
     if (!locals.user) {
@@ -29,4 +29,16 @@ export const actions: Actions = {
             redirect(302, '/login');
         }
     },
+
+    desactivarRegistro: async ({ request }) => {
+        const { idRegistro } = Object.fromEntries(await request.formData());
+        await db.update(registro).set({ estado: false }).where(eq(registro.idRegistro, Number(idRegistro)));
+        return { success: true };
+    },
+
+    activarRegistro: async ({ request }) => {
+        const { idRegistro } = Object.fromEntries(await request.formData());
+        await db.update(registro).set({ estado: true }).where(eq(registro.idRegistro, Number(idRegistro)));
+        return { success: true };
+    }
 };

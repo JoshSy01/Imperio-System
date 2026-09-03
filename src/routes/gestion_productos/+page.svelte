@@ -16,6 +16,7 @@
 	let activatingId = $state<number | null>(null);
 	let searchQuery = $state('');
 	let filterEstado = $state('true');
+	// svelte-ignore state_referenced_locally
 	let filterTipo = $state(tipoSelected.toString());
 	let porcentajeGanancia = $state(50);
 	let cantidades = $state<Record<number, number>>({});
@@ -1372,12 +1373,14 @@
 	.registro-table-wrap {
 		border: 1px solid rgba(255,255,255,0.08);
 		border-radius: 10px;
-		overflow: hidden;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 		margin-bottom: 1rem;
 	}
 	.registro-table {
 		width: 100%; border-collapse: collapse;
 		font-size: 0.875rem;
+		min-width: 380px;
 	}
 	.registro-table thead { background: rgba(255,255,255,0.05); }
 	.registro-table th {
@@ -1389,6 +1392,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		border-bottom: 1px solid rgba(255,255,255,0.08);
+		white-space: nowrap;
 	}
 	.registro-table td {
 		padding: 0.65rem 0.9rem;
@@ -1539,9 +1543,46 @@
 	/* ── Responsive ── */
 	@media (max-width: 600px) {
 		.main-content { padding: 1.5rem 1rem; }
-		.navbar { padding: 0.75rem 1rem; }
-		.page-header { flex-direction: column; align-items: flex-start; }
-		.form-row { grid-template-columns: 1fr; }
+		.navbar { padding: 0.65rem 1rem; gap: 0.5rem; }
 		.navbar-breadcrumb { display: none; }
+		.logout-btn span:not(.spinner-sm) { display: none; }
+		.page-header { flex-direction: column; align-items: flex-start; }
+		.page-header-left { gap: 0.65rem; }
+		.page-title { font-size: 1.25rem; }
+		.btn-add { font-size: 0.82rem; padding: 0.55rem 1rem; }
+		.form-row { grid-template-columns: 1fr; }
+
+		/* Filtros en columna */
+		.filters-bar { flex-direction: column; align-items: stretch; }
+		.search-wrapper { min-width: unset; }
+		.filter-select { min-width: unset; }
+
+		/* Grid de productos a 2 columnas */
+		.products-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 0.75rem;
+		}
+
+		/* Modal como bottom-sheet */
+		.modal-backdrop { padding: 0; align-items: flex-end; }
+		.modal {
+			max-width: 100%;
+			border-radius: 20px 20px 0 0;
+			padding: 1.5rem 1.25rem;
+			max-height: 90vh;
+			overflow-y: auto;
+		}
+		.modal-registro { max-width: 100%; }
+		.registro-body { padding: 0 0 1rem; }
+
+		/* Tabla con scroll horizontal */
+		.registro-table-wrap { border-radius: 8px; }
+		.registro-table th,
+		.registro-table td { padding: 0.5rem 0.65rem; font-size: 0.8rem; }
+
+		/* Modal actions en columna */
+		.modal-actions { flex-direction: column-reverse; }
+		.modal-actions .btn-cancel,
+		.modal-actions .btn-submit { width: 100%; justify-content: center; text-align: center; }
 	}
 </style>

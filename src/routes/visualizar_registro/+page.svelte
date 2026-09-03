@@ -1,13 +1,21 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
+	import { page } from "$app/stores";
 
 	let { data }: { data: PageData } = $props();
+	const tipoSelected = $derived(Number($page.url.searchParams.get("tipoSelected")) || 1);
 
 	let loggingOut = $state(false);
 	let filterDate = $state('');
 	let selectedRegistro = $state<typeof data.registros[0] | null>(null);
 	let showModal = $state(false);
+	let filterEstado = $state('true');
+	let tipo = $state(tipoSelected.toString());
+	let showConfirmationModal = $state(false);
+	let pendingAction = $state<'desactivar' | 'activar' | null>(null);
+	
+	
 
 	// Iniciales del usuario
 	const initials = $derived(
@@ -84,6 +92,7 @@
 	const registrosFiltrados = $derived(
 		data.registros.filter((r) => {
 			if (!filterDate) return true;
+
 			return fechaKey(r.fecha) === filterDate;
 		})
 	);
@@ -92,9 +101,11 @@
 	const registrosAgrupados = $derived(() => {
 		const grupos: Record<string, typeof data.registros> = {};
 		for (const r of registrosFiltrados) {
-			const key = fechaKey(r.fecha);
-			if (!grupos[key]) grupos[key] = [];
-			grupos[key].push(r);
+			if (r.idTipo === tipoSelected && String(r.estado) === filterEstado){
+				const key = fechaKey(r.fecha);
+				if (!grupos[key]) grupos[key] = [];
+				grupos[key].push(r);
+			}
 		}
 		// Ordenar las claves de forma descendente
 		const keys = Object.keys(grupos).sort((a, b) => b.localeCompare(a));
@@ -111,6 +122,34 @@
 		selectedRegistro = null;
 	}
 
+	function desactivarRegistro() {
+		const form = document.getElementById('form-desactivar') as HTMLFormElement;
+		form?.requestSubmit();
+	}
+
+	function activarRegistro() {
+		const form = document.getElementById('form-activar') as HTMLFormElement;
+		form?.requestSubmit();
+		filterEstado = "true";
+	}
+
+	function requestConfirmation(action: 'desactivar' | 'activar') {
+		pendingAction = action;
+		showConfirmationModal = true;
+	}
+
+	function confirmAction() {
+		showConfirmationModal = false;
+		if (pendingAction === 'desactivar') desactivarRegistro();
+		else if (pendingAction === 'activar') activarRegistro();
+		pendingAction = null;
+	}
+
+	function cancelConfirmation() {
+		showConfirmationModal = false;
+		pendingAction = null;
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape') closeModal();
 	}
@@ -125,6 +164,9 @@
 		if (!idTipo) return '—';
 		return tiposMap[idTipo]?.nombreTipo ?? `Tipo #${idTipo}`;
 	}
+
+	// Nombre reactivo del tipo seleccionado
+	const nombreTipo = $derived(getNombreTipo(tipoSelected));
 
 	// Cantidad total de items en un registro
 	function totalItems(reg: typeof data.registros[0]): number {
@@ -200,7 +242,7 @@
 			<div class="page-header-left">
 				<div class="page-icon">📋</div>
 				<div>
-					<h1 class="page-title">Registros de Ventas</h1>
+					<h1 class="page-title">Registros de Ventas de {nombreTipo}</h1>
 					<p class="page-subtitle">
 						{data.registros.length} registro{data.registros.length !== 1 ? 's' : ''} en total
 					</p>
@@ -238,6 +280,16 @@
 					Mostrando: {formatFechaGrupo(filterDate)}
 				</span>
 			{/if}
+
+			<div class="filter-estado">
+
+				<label for="filter-estado">Estado:</label>
+				<select class="filter-select" id="filter-estado" bind:value={filterEstado}>
+					<option value="true">Activo</option>
+					<option value="false">Inactivo</option>
+				</select>
+
+			</div>
 		</div>
 
 		<!-- Contenido de registros -->
@@ -275,7 +327,6 @@
 							<div class="registro-card">
 								<div class="registro-card-top">
 									<div class="registro-meta">
-										<span class="registro-id"># {reg.idRegistro}</span>
 										<span class="registro-hora">
 											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 												<circle cx="12" cy="12" r="10"/>
@@ -399,8 +450,8 @@
 						<thead>
 							<tr>
 								<th>Producto</th>
-								<th class="th-center">Cantidad</th>
-								<th class="th-right">Precio Unit.</th>
+								<th class="th-center">C</th>
+								<th class="th-right">P/U</th>
 								<th class="th-right">Subtotal</th>
 							</tr>
 						</thead>
@@ -440,14 +491,195 @@
 			</div>
 
 			<div class="modal-footer">
-				<button type="button" class="btn-cancel" onclick={closeModal}>Cerrar</button>
+				{#if selectedRegistro}
+					<form id="form-desactivar" method="POST" action="?/desactivarRegistro" use:enhance={() => { closeModal(); return async ({ update }) => { await update(); }; }}>
+						<input type="hidden" name="idRegistro" value={selectedRegistro.idRegistro} />
+					</form>
+					<form id="form-activar" method="POST" action="?/activarRegistro" use:enhance={() => { closeModal(); return async ({ update }) => { await update(); }; }}>
+						<input type="hidden" name="idRegistro" value={selectedRegistro.idRegistro} />
+					</form>
+				{/if}
+				<div class="modal-desactivate-button">
+					<button class='desactivar' aria-label={selectedRegistro?.estado ? 'Desactivar' : 'Activar'} onclick={() => { requestConfirmation(selectedRegistro?.estado ? 'desactivar' : 'activar') }}>
+						{selectedRegistro?.estado ? 'Desactivar' : 'Activar'}
+					</button>
+					<button type="button" class="btn-cancel" onclick={closeModal}>Cerrar</button>
+				</div>
 			</div>
 		</div>
 	</div>
 {/if}
 
+
+{#if showConfirmationModal}
+	<div
+		class="confirm-overlay"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="confirm-title"
+		onclick={(e) => { if (e.target === e.currentTarget) cancelConfirmation(); }}
+		onkeydown={(e) => { if (e.key === 'Escape') cancelConfirmation(); }}
+		tabindex="-1"
+	>
+		<div class="confirm-card">
+			<div class="confirm-icon {pendingAction === 'desactivar' ? 'icon-warn' : 'icon-ok'}">
+				{#if pendingAction === 'desactivar'}
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+						<line x1="12" y1="9" x2="12" y2="13"/>
+						<line x1="12" y1="17" x2="12.01" y2="17"/>
+					</svg>
+				{:else}
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="20 6 9 17 4 12"/>
+					</svg>
+				{/if}
+			</div>
+			<h2 id="confirm-title" class="confirm-title">
+				{pendingAction === 'desactivar' ? '¿Desactivar registro?' : '¿Activar registro?'}
+			</h2>
+			<p class="confirm-desc">
+				{#if pendingAction === 'desactivar'}
+					El registro quedará marcado como <strong>inactivo</strong>. Puedes reactivarlo en cualquier momento.
+				{:else}
+					El registro quedará marcado como <strong>activo</strong> nuevamente.
+				{/if}
+			</p>
+			<div class="confirm-actions">
+				<button id="btn-confirm-cancel" class="confirm-btn confirm-btn--cancel" onclick={cancelConfirmation}>
+					Cancelar
+				</button>
+				<button id="btn-confirm-apply" class="confirm-btn confirm-btn--apply {pendingAction === 'desactivar' ? 'apply-warn' : 'apply-ok'}" onclick={confirmAction}>
+					Aplicar
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+
 <style>
 	*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+	/* ── Confirmation Modal ── */
+	.confirm-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.65);
+		backdrop-filter: blur(6px);
+		animation: fadeIn 0.18s ease;
+	}
+
+	.confirm-card {
+		background: #0f1628;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 20px;
+		padding: 2.2rem 2rem 1.8rem;
+		width: min(420px, 92vw);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.9rem;
+		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+		animation: slideUp 0.2s ease;
+	}
+
+	.confirm-icon {
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 0.3rem;
+	}
+
+	.confirm-icon svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	.icon-warn {
+		background: rgba(251, 146, 60, 0.15);
+		color: #fb923c;
+		border: 1px solid rgba(251, 146, 60, 0.3);
+	}
+
+	.icon-ok {
+		background: rgba(52, 211, 153, 0.12);
+		color: #34d399;
+		border: 1px solid rgba(52, 211, 153, 0.3);
+	}
+
+	.confirm-title {
+		font-size: 1.15rem;
+		font-weight: 700;
+		color: #f1f5f9;
+		text-align: center;
+	}
+
+	.confirm-desc {
+		font-size: 0.88rem;
+		color: #94a3b8;
+		text-align: center;
+		line-height: 1.55;
+	}
+
+	.confirm-desc strong {
+		color: #e2e8f0;
+	}
+
+	.confirm-actions {
+		display: flex;
+		gap: 0.75rem;
+		margin-top: 0.6rem;
+		width: 100%;
+	}
+
+	.confirm-btn {
+		flex: 1;
+		padding: 0.65rem 1rem;
+		border-radius: 10px;
+		font-size: 0.9rem;
+		font-weight: 600;
+		cursor: pointer;
+		border: none;
+		transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+	}
+
+	.confirm-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+	.confirm-btn:active { transform: translateY(0); }
+
+	.confirm-btn--cancel {
+		background: rgba(255, 255, 255, 0.06);
+		color: #94a3b8;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.confirm-btn--cancel:hover {
+		background: rgba(255, 255, 255, 0.1);
+		color: #e2e8f0;
+	}
+
+	.confirm-btn--apply.apply-warn {
+		background: linear-gradient(135deg, #f97316, #ea580c);
+		color: #fff;
+		box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35);
+	}
+
+	.confirm-btn--apply.apply-ok {
+		background: linear-gradient(135deg, #10b981, #059669);
+		color: #fff;
+		box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+	}
+
+	@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+	@keyframes slideUp { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
 
 	.dashboard {
 		min-height: 100vh;
@@ -689,7 +921,7 @@
 	}
 	.registro-hora {
 		display: flex; align-items: center; gap: 0.3rem;
-		font-size: 0.75rem; color: #94a3b8;
+		font-size: 1rem; color: #94a3b8;
 	}
 	.registro-tipo-badge {
 		font-size: 0.72rem; font-weight: 600;
@@ -741,6 +973,21 @@
 		background: rgba(108,63,255,0.1);
 		border-color: rgba(108,63,255,0.2);
 	}
+
+	.filter-select {
+		padding: 0.65rem 1rem;
+		background: rgba(255,255,255,0.05);
+		border: 1px solid rgba(255,255,255,0.1);
+		border-radius: 10px; color: #e2e8f0;
+		font-size: 0.88rem; font-family: inherit;
+		cursor: pointer; min-width: 160px;
+		transition: border-color 0.2s;
+	}
+	.filter-select:focus {
+		outline: none;
+		border-color: rgba(182,145,76,0.5);
+	}
+	.filter-select option { background: #0f172a; color: #e2e8f0; }
 
 	/* Botón ver más */
 	.btn-ver-mas {
@@ -851,10 +1098,15 @@
 	}
 
 	/* Tabla del modal */
-	.modal-table-wrap { overflow-x: auto; border-radius: 12px; }
+	.modal-table-wrap {
+		overflow-x: auto;
+		border-radius: 12px;
+		-webkit-overflow-scrolling: touch;
+	}
 	.modal-table {
 		width: 100%; border-collapse: collapse;
 		font-size: 0.875rem;
+		min-width: 400px;
 	}
 	.modal-table thead { background: rgba(108,63,255,0.08); }
 	.modal-table th {
@@ -863,6 +1115,7 @@
 		font-weight: 600; color: #64748b;
 		text-transform: uppercase; letter-spacing: 0.05em;
 		border-bottom: 1px solid rgba(255,255,255,0.06);
+		white-space: inherit;
 	}
 	.modal-table td {
 		padding: 0.75rem 1rem;
@@ -899,6 +1152,14 @@
 		border-top: 1px solid rgba(255,255,255,0.07);
 		display: flex; justify-content: flex-end;
 	}
+
+	.modal-desactivate-button {
+		display: flex; 
+		align-items: center; 
+		justify-content: space-between; 
+		width: 100%;
+	}
+
 	.btn-cancel {
 		padding: 0.6rem 1.5rem;
 		background: rgba(255,255,255,0.06);
@@ -910,8 +1171,81 @@
 	}
 	.btn-cancel:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
 
+	.desactivar {
+		padding: 0.6rem 1.5rem;
+		background: rgba(81, 50, 50, 0.06);
+		border: 1px solid rgba(255,255,255,0.1);
+		border-radius: 10px;
+		color: #7e4343; font-size: 0.875rem;
+		font-family: inherit; font-weight: 600;
+		cursor: pointer; transition: all 0.2s;
+	}
+	.desactivar:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+
+	.filter-estado {
+		display: flex; 
+		align-items: center; 
+		justify-content: space-between; 
+	}
+
 	@keyframes slideUp {
 		from { opacity: 0; transform: translateY(20px); }
 		to   { opacity: 1; transform: translateY(0); }
+	}
+
+	/* ── Responsive ── */
+	@media (max-width: 640px) {
+		.navbar { padding: 0.65rem 1rem; gap: 0.5rem; }
+		.navbar-breadcrumb { display: none; }
+		.logout-btn span:not(.spinner-sm) { display: none; } /* Oculta texto "Cerrar sesión" */
+
+		.main-content { padding: 1.25rem 0.875rem; }
+
+		.page-title { font-size: 1.2rem; }
+		.page-header-left { gap: 0.65rem; }
+		.page-icon { width: 40px; height: 40px; font-size: 1.15rem; }
+
+		.filters-bar {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0.65rem;
+			padding: 0.875rem 1rem;
+		}
+		.filter-date-wrapper { width: 100%; }
+		.date-input { width: 100%; }
+		.filter-estado { justify-content: space-between; }
+		.filter-select { min-width: unset; width: 100%; }
+
+		.registros-grid {
+			grid-template-columns: 1fr;
+		}
+
+		/* Modal responsivo */
+		.modal-backdrop { padding: 0; align-items: flex-end; }
+		.modal {
+			max-width: 100%;
+			border-radius: 20px 20px 0 0;
+			max-height: 92vh;
+		}
+		.modal-header { padding: 1.1rem 1.25rem 1rem; }
+		.modal-body { padding: 1rem 1.25rem; }
+		.modal-footer { padding: 0.875rem 1.25rem; }
+
+		/* Tabla en mobile: scroll horizontal */
+		.modal-table-wrap { border-radius: 12px; }
+		.modal-table th,
+		.modal-table td { padding: 0.6rem 0.3rem; font-size: 0.8rem; }
+
+		.modal-desactivate-button { flex-direction: column-reverse; gap: 0.5rem; }
+		.modal-desactivate-button .btn-cancel,
+		.modal-desactivate-button .desactivar { width: 100%; text-align: center; justify-content: center; }
+
+		/* Info items en grid compacto para no ocupar tanto vertical */
+		.modal-info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+		.modal-info-item { min-width: unset; padding: 0.5rem 0.6rem; }
+		.modal-info-label { font-size: 0.6rem; }
+		.modal-info-value { font-size: 0.7rem; }
+
+		.date-group-label { font-size: 0.72rem; padding: 0.25rem 0.65rem; }
 	}
 </style>
