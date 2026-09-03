@@ -24,7 +24,7 @@
 	<div class="login-card">
 		<!-- Logo / Marca -->
 		<div class="brand" style="justify-content: center;">
-			<img src="/src/images/logo.png" width="75" height="75" alt="Imperio" class="brand-logo">
+			<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="75" height="75" alt="Imperio" class="brand-logo">
 		</div>
 
 		<div class="card-header">

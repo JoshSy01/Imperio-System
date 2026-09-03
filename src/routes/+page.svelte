@@ -75,7 +75,7 @@
 		<div class="info-grid">
 
 				<div class="info-card">
-					<img src="/src/images/yogurt.png" alt="Logo" class="info-logo">
+					<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/yogurt.png" alt="Logo" class="info-logo">
 					<a href="/gestion_productos?tipoSelected=1" class="btn-primary">Gestión Registro Yogurt</a>
 					<a href="/visualizar_registro?tipoSelected=1" class="btn-secundary">Visualizar registros</a>
 				</div>
@@ -83,7 +83,7 @@
 
 			
 				<div class="info-card">
-					<img src="/src/images/proteinas.png" alt="Logo" class="info-logo">
+					<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/proteinas.png" alt="Logo" class="info-logo">
 					<a href="/gestion_productos?tipoSelected=2" class="btn-primary">Gestión Registro Proteínas</a>
 					<a href="/visualizar_registro?tipoSelected=2" class="btn-secundary">Visualizar registros</a>
 				</div>
