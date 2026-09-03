@@ -33,7 +33,7 @@
 	<header class="navbar">
 		<div class="navbar-brand">
 			<div class="brand-icon">
-				<img src="/src/images/logo.png" width="50" height="50" alt="Imperio" class="brand-logo">
+				<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="50" height="50" alt="Imperio" class="brand-logo">
 			</div>
 		</div>
 

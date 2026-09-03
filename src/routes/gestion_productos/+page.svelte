@@ -198,7 +198,7 @@
 		<div class="navbar-brand">
 			<div class="brand-icon">
 				<a href="/">
-                    <img src="/src/images/logo.png" width="50" height="50" alt="Imperio" class="brand-logo" />
+                    <img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="50" height="50" alt="Imperio" class="brand-logo" />
                 </a>
 			</div>
 		</div>
