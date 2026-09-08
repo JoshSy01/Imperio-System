@@ -22,6 +22,7 @@
 	let cantidades = $state<Record<number, number>>({});
 	let selectedProducts = $state<Set<number>>(new Set());
 	let showModalRegistro = $state(false);
+	let fechaCustom = $state(false);
 
     // Inicializa la cantidad de todos los productos en 1
     for (const p of data.productos) {
@@ -706,7 +707,17 @@
 					adding = true;
 					const now = new Date();
 					const pad = (n: number) => String(n).padStart(2, '0');
-					const localFecha = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+					let localFecha = '';
+					if (fechaCustom) {
+						const fecha = formData.get('fecha_custom')?.toString();
+						const hora = formData.get('hora_custom')?.toString();
+						if (fecha && hora) {
+							localFecha = `${fecha} ${hora}`;
+						}
+					}else{
+						localFecha = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+					}
 					formData.set('fecha', localFecha);
 
 					return async ({ update, result }) => {
@@ -777,6 +788,45 @@
 							</p>
 						{/if}
 					</div>
+				</div>
+				<div class="modal-section">
+					<label for="fecha-custom" class="form-label">Fecha Personalizada</label>
+					<label class="switch">
+						<input type="checkbox" bind:checked={fechaCustom} />
+						<span class="slider"></span>
+					</label>
+					{#if fechaCustom}
+
+					<div class="form-fecha-custom-row">
+						<div class="form-fecha-custom-row-item">
+					    <label for="fecha-custom" class="form-label">Fecha:</label>
+						<input
+							id="fecha-custom"
+							name="fecha_custom"
+							type="date"
+							class="form-input-fecha"
+							placeholder="ej. 2023-01-01"
+							required
+						/>
+						</div>
+						<div class="form-fecha-custom-row-item">
+						<label for="hora-custom" class="form-label">Hora:</label>
+						<input
+							id="hora-custom"
+							name="hora_custom"
+							type="time"
+							class="form-input-hora"
+							placeholder="ej. 12:00"
+							required
+						/>
+						</div>
+					</div>
+
+
+						
+					{:else}
+						
+					{/if}
 				</div>
 
 				<div class="modal-actions">
@@ -902,6 +952,8 @@
 		max-width: 1100px; margin: 0 auto;
 		padding: 2.5rem 1.5rem;
 	}
+
+
 
 	/*Sección de Registrar y exportar*/
 	.register-section {
@@ -1247,6 +1299,19 @@
 	.btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(182,145,76,0.45); }
 	.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
+	.form-fecha-custom-row {
+		display: flex;
+		flex-direction: row;
+		gap: 1rem;
+		margin-top: 0.5rem;
+	}
+	.form-fecha-custom-row-item {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		width: 100%;
+	}
+
 
 	/* ── Spinner ── */
 	.spinner-sm {
@@ -1509,6 +1574,8 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
+
+
     .image-preview img {
         width: 100%;
         height: 100%;
@@ -1585,4 +1652,73 @@
 		.modal-actions .btn-cancel,
 		.modal-actions .btn-submit { width: 100%; justify-content: center; text-align: center; }
 	}
+
+	.form-input-fecha {
+		justify-content: center;
+		display: flex;
+		width: 80%;
+		padding: 0.625rem 1rem;
+		background-color: rgba(28, 30, 37, 0.7);
+		border: 2px solid transparent;
+		border-radius: 12px;
+		color: #f8fafc;
+		font-size: 0.95rem;
+		outline: none;
+		transition: all 0.25s ease;
+	}
+
+	.form-input-hora {
+		justify-content: center;
+		display: flex;
+		width: 45%;
+		padding: 0.625rem 1rem;
+		background-color: rgba(28, 30, 37, 0.7);
+		border: 2px solid transparent;
+		border-radius: 12px;
+		color: #f8fafc;
+		font-size: 0.95rem;
+		outline: none;
+		transition: all 0.25s ease;
+	}
+
+	.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  input:checked + .slider:before {
+    transform: translateX(16px);
+  }
 </style>
