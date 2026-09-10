@@ -14,6 +14,7 @@
 	let tipo = $state(tipoSelected.toString());
 	let showConfirmationModal = $state(false);
 	let pendingAction = $state<'desactivar' | 'activar' | null>(null);
+	let gananciaFecha = $state<string>('');
 	
 	
 
@@ -86,6 +87,13 @@
 	function calcGanancia(reg: typeof data.registros[0]): number {
 		const total = calcTotal(reg);
 		return total * ((reg.porcentajeGanancia ?? 0) / 100);
+	}
+
+	// Ganancia total de todos los registros de una fecha
+	function calcGananciaFecha(key: string): number {
+		return registrosFiltrados
+			.filter((r) => fechaKey(r.fecha) === key && r.idTipo === tipoSelected && String(r.estado) === filterEstado)
+			.reduce((acc, r) => acc + calcGanancia(r), 0);
 	}
 
 	// Registros filtrados por fecha
@@ -317,6 +325,12 @@
 								<line x1="3" y1="10" x2="21" y2="10"/>
 							</svg>
 							{formatFechaGrupo(grupo.key)}
+
+							{#if calcGananciaFecha(grupo.key) > 0}
+								<span style="font-weight: bold; color: #34d399;">
+									Ganancia del día: {formatPrice(calcGananciaFecha(grupo.key))}
+								</span>
+							{/if}
 						</span>
 						<div class="date-group-line"></div>
 					</div>

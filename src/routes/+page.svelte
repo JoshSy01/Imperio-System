@@ -5,6 +5,7 @@
 	let { data }: { data: PageData } = $props();
 
 	let loggingOut = $state(false);
+	
 
 	// Iniciales del usuario
 	const initials = $derived(
