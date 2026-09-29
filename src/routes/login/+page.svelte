@@ -11,30 +11,26 @@
 <svelte:head>
 	<title>Iniciar Sesión · Imperio</title>
 	<meta name="description" content="Accede a tu cuenta en Imperio." />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
 
 <div class="login-wrapper">
-	<!-- Fondo animado -->
-	<div class="bg-orbs" aria-hidden="true">
-		<span class="orb orb-1"></span>
-		<span class="orb orb-2"></span>
-		<span class="orb orb-3"></span>
-	</div>
-
 	<div class="login-card">
 		<!-- Logo / Marca -->
-		<div class="brand" style="justify-content: center;">
-			<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="75" height="75" alt="Imperio" class="brand-logo">
+		<div class="brand">
+			<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="64" height="64" alt="Imperio" class="brand-logo">
 		</div>
 
 		<div class="card-header">
-			<h2>Bienvenido de vuelta Joel</h2>
+			<h2>Bienvenido de vuelta</h2>
 			<p>Ingresa la contraseña para continuar</p>
 		</div>
 
 		{#if form?.error}
 			<div class="error-alert" role="alert">
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<circle cx="12" cy="12" r="10"/>
 					<line x1="12" y1="8" x2="12" y2="12"/>
 					<line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -105,151 +101,97 @@
 </div>
 
 <style>
-	/* ── Reset & base ── */
 	*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-	/* ── Wrapper ── */
 	.login-wrapper {
 		min-height: 100vh;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: #0e1018;
+		background: #000;
 		position: relative;
-		overflow: hidden;
-		font-family: 'Inter', system-ui, sans-serif;
+		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 		padding: 1.5rem;
 	}
 
-	/* ── Orbs de fondo ── */
-	.bg-orbs { position: absolute; inset: 0; pointer-events: none; }
-
-	.orb {
-		position: absolute;
-		border-radius: 50%;
-		filter: blur(80px);
-		opacity: 0.35;
-		animation: drift 12s ease-in-out infinite;
-	}
-	.orb-1 {
-		width: 520px; height: 520px;
-		background: radial-gradient(circle, #0f0c1a 0%, transparent 70%);
-		top: -180px; left: -120px;
-		animation-delay: 0s;
-	}
-	.orb-2 {
-		width: 420px; height: 420px;
-		background: radial-gradient(circle, #272829 0%, transparent 70%);
-		bottom: -140px; right: -100px;
-		animation-delay: -4s;
-	}
-	.orb-3 {
-		width: 300px; height: 300px;
-		background: radial-gradient(circle, #353238 0%, transparent 70%);
-		top: 50%; left: 50%;
-		transform: translate(-50%, -50%);
-		animation-delay: -8s;
-	}
-
-	@keyframes drift {
-		0%, 100% { transform: translate(0, 0) scale(1); }
-		33%       { transform: translate(30px, -20px) scale(1.05); }
-		66%       { transform: translate(-20px, 30px) scale(0.97); }
-	}
-
-	/* ── Card ── */
 	.login-card {
 		position: relative;
 		width: 100%;
-		max-width: 420px;
-		background: rgba(38, 41, 36, 0.1);
+		max-width: 400px;
+		background: #111;
 		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 24px;
-		padding: 2.5rem;
-		backdrop-filter: blur(20px);
-		-webkit-backdrop-filter: blur(20px);
-		box-shadow:
-			0 0 0 1px rgba(108, 63, 255, 0.15),
-			0 25px 60px rgba(0, 0, 0, 0.5),
-			inset 0 1px 0 rgba(255, 255, 255, 0.08);
-		animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+		border-radius: 20px;
+		padding: 2.75rem 2.25rem;
+		animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 	}
 
 	@keyframes slideUp {
-		from { opacity: 0; transform: translateY(30px); }
+		from { opacity: 0; transform: translateY(24px); }
 		to   { opacity: 1; transform: translateY(0); }
 	}
 
-	/* ── Brand ── */
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 0.625rem;
+		justify-content: center;
 		margin-bottom: 2rem;
 	}
-	.brand-icon {
-		width: 44px; height: 44px;
-		border-radius: 12px;
-		display: flex; align-items: center; justify-content: center;
-	}
-	.brand-name {
-		font-size: 1.35rem;
-		font-weight: 700;
-		letter-spacing: -0.02em;
-		background: linear-gradient(135deg, #fff 40%, #a78bfa);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
+
+	.brand-logo {
+		border-radius: 16px;
+		display: block;
 	}
 
-	/* ── Card header ── */
 	.card-header {
-		margin-bottom: 1.75rem;
+		text-align: center;
+		margin-bottom: 2rem;
 	}
+
 	.card-header h2 {
 		font-size: 1.6rem;
 		font-weight: 700;
 		letter-spacing: -0.03em;
-		color: #f1f5f9;
-		margin-bottom: 0.35rem;
-	}
-	.card-header p {
-		font-size: 0.9rem;
-		color: #64748b;
+		color: #fff;
+		margin-bottom: 0.4rem;
 	}
 
-	/* ── Error alert ── */
+	.card-header p {
+		font-size: 0.9rem;
+		color: rgba(255, 255, 255, 0.45);
+	}
+
 	.error-alert {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		background: rgba(239, 68, 68, 0.12);
-		border: 1px solid rgba(239, 68, 68, 0.3);
+		background: rgba(239, 68, 68, 0.1);
+		border: 1px solid rgba(239, 68, 68, 0.25);
 		border-radius: 10px;
 		padding: 0.75rem 1rem;
-		color: #fca5a5;
+		color: #f87171;
 		font-size: 0.875rem;
 		margin-bottom: 1.25rem;
 		animation: shake 0.3s ease;
 	}
+
 	@keyframes shake {
 		0%, 100% { transform: translateX(0); }
 		25%       { transform: translateX(-4px); }
 		75%       { transform: translateX(4px); }
 	}
 
-	/* ── Form fields ── */
 	.field {
-		margin-bottom: 1.1rem;
+		margin-bottom: 1rem;
 	}
+
 	.field label {
 		display: block;
 		font-size: 0.8rem;
 		font-weight: 600;
-		color: #94a3b8;
-		letter-spacing: 0.05em;
+		color: rgba(255, 255, 255, 0.5);
+		letter-spacing: 0.04em;
 		text-transform: uppercase;
-		margin-bottom: 0.45rem;
+		margin-bottom: 0.5rem;
 	}
 
 	.input-wrapper {
@@ -257,33 +199,36 @@
 		display: flex;
 		align-items: center;
 	}
+
 	.input-icon {
 		position: absolute;
 		left: 0.875rem;
-		color: #4b5563;
+		color: rgba(255, 255, 255, 0.25);
 		pointer-events: none;
 		flex-shrink: 0;
 	}
+
 	.input-wrapper input {
 		width: 100%;
-		background: rgba(255, 255, 255, 0.05);
-		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: #1a1a1a;
+		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 12px;
-		padding: 0.8rem 3rem 0.8rem 2.75rem;
-		color: #f1f5f9;
+		padding: 0.85rem 3rem 0.85rem 2.75rem;
+		color: #fff;
 		font-size: 0.95rem;
 		font-family: inherit;
 		outline: none;
-		transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+		transition: border-color 0.2s;
 	}
-	.input-wrapper input::placeholder { color: #374151; }
+
+	.input-wrapper input::placeholder { color: rgba(255, 255, 255, 0.2); }
+
 	.input-wrapper input:focus {
-		border-color: rgba(255, 221, 98, 0.4);
-		background: rgba(216, 204, 127, 0.07);
-		box-shadow: 0 0 0 3px rgba(255, 221, 98, 0.4);
+		border-color: rgba(182, 145, 76, 0.6);
 	}
+
 	.input-wrapper input:hover:not(:focus) {
-		border-color: rgba(255, 255, 255, 0.15);
+		border-color: rgba(255, 255, 255, 0.18);
 	}
 
 	.toggle-password {
@@ -292,64 +237,50 @@
 		background: none;
 		border: none;
 		cursor: pointer;
-		color: #4b5563;
+		color: rgba(255, 255, 255, 0.25);
 		display: flex;
 		align-items: center;
 		padding: 0;
 		transition: color 0.2s;
 	}
-	.toggle-password:hover { color: #9ca3af; }
 
-	/* ── Primary button ── */
+	.toggle-password:hover { color: rgba(255, 255, 255, 0.6); }
+
 	.btn-primary {
 		width: 100%;
-		margin-top: 0.5rem;
-		padding: 0.875rem;
+		margin-top: 1rem;
+		padding: 0.9rem;
 		border: none;
 		border-radius: 12px;
-		background: linear-gradient(135deg, #b6914c, #493d27);
-		color: white;
-		font-size: 0.975rem;
-		font-weight: 600;
+		background: #b6914c;
+		color: #000;
+		font-size: 0.95rem;
+		font-weight: 700;
 		font-family: inherit;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0.5rem;
-		transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-		box-shadow: 0 4px 24px rgba(179, 168, 88, 0.4);
+		transition: opacity 0.2s, transform 0.15s;
 		letter-spacing: 0.01em;
 	}
-	.btn-primary:hover:not(:disabled) {
-		transform: translateY(-1px);
-		box-shadow: 0 6px 30px rgba(216, 204, 127, 0.4);
-	}
-	.btn-primary:active:not(:disabled) { transform: translateY(0); }
-	.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-	/* ── Spinner ── */
+	.btn-primary:hover:not(:disabled) {
+		opacity: 0.88;
+		transform: translateY(-1px);
+	}
+
+	.btn-primary:active:not(:disabled) { transform: translateY(0); }
+	.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
 	.spinner {
-		width: 16px; height: 16px;
-		border: 2px solid rgba(255,255,255,0.3);
-		border-top-color: white;
+		width: 15px; height: 15px;
+		border: 2px solid rgba(0,0,0,0.25);
+		border-top-color: #000;
 		border-radius: 50%;
 		animation: spin 0.7s linear infinite;
 	}
-	@keyframes spin { to { transform: rotate(360deg); } }
 
-	/* ── Switch link ── */
-	.switch-link {
-		margin-top: 1.5rem;
-		text-align: center;
-		font-size: 0.875rem;
-		color: #4b5563;
-	}
-	.switch-link a {
-		color: #a78bfa;
-		text-decoration: none;
-		font-weight: 600;
-		transition: color 0.2s;
-	}
-	.switch-link a:hover { color: #c4b5fd; text-decoration: underline; }
+	@keyframes spin { to { transform: rotate(360deg); } }
 </style>

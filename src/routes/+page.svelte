@@ -21,21 +21,16 @@
 <svelte:head>
 	<title>Dashboard · Imperio</title>
 	<meta name="description" content="Tu panel de control en Imperio." />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
 
 <div class="dashboard">
-	<!-- Fondo -->
-	<div class="bg-orbs" aria-hidden="true">
-		<span class="orb orb-1"></span>
-		<span class="orb orb-2"></span>
-	</div>
-
 	<!-- Navbar -->
 	<header class="navbar">
 		<div class="navbar-brand">
-			<div class="brand-icon">
-				<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="50" height="50" alt="Imperio" class="brand-logo">
-			</div>
+			<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/logo.png" width="40" height="40" alt="Imperio" class="brand-logo">
 		</div>
 
 		<div class="navbar-user">
@@ -64,31 +59,46 @@
 
 	<!-- Contenido principal -->
 	<main class="main-content">
-		<!-- Welcome card -->
-		<div class="welcome-card">
+		<!-- Welcome -->
+		<div class="welcome-section">
 			<div class="welcome-avatar">{initials}</div>
 			<div class="welcome-text">
-				<h1>¡Bienvenido, {data.user?.name?.split(' ')[0]}! 👋</h1>
+				<h1>Hola, {data.user?.name?.split(' ')[0]}</h1>
+				<p>¿Qué quieres gestionar hoy?</p>
 			</div>
 		</div>
 
-		<!-- Info cards -->
-		<div class="info-grid">
+		<!-- Cards -->
+		<div class="cards-grid">
 
-				<div class="info-card">
-					<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/yogurt.png" alt="Logo" class="info-logo">
-					<a href="/gestion_productos?tipoSelected=1" class="btn-primary">Gestión Registro Yogurt</a>
-					<a href="/visualizar_registro?tipoSelected=1" class="btn-secundary">Visualizar registros</a>
+			<div class="product-card">
+				<div class="card-image-wrap">
+					<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/yogurt.png" alt="Yogurt" class="card-image">
 				</div>
-
-
-			
-				<div class="info-card">
-					<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/proteinas.png" alt="Logo" class="info-logo">
-					<a href="/gestion_productos?tipoSelected=2" class="btn-primary">Gestión Registro Proteínas</a>
-					<a href="/visualizar_registro?tipoSelected=2" class="btn-secundary">Visualizar registros</a>
+				<div class="card-body">
+					<span class="card-label">Categoría</span>
+					<h2 class="card-title">Yogurt</h2>
+					<div class="card-actions">
+						<a href="/gestion_productos?tipoSelected=1" class="btn-primary">Gestionar</a>
+						<a href="/visualizar_registro?tipoSelected=1" class="btn-secondary">Ver registros</a>
+					</div>
 				</div>
-			
+			</div>
+
+			<div class="product-card">
+				<div class="card-image-wrap">
+					<img src="https://res.cloudinary.com/b6k3zfto/image/upload/v1788471377/proteinas.png" alt="Proteínas" class="card-image">
+				</div>
+				<div class="card-body">
+					<span class="card-label">Categoría</span>
+					<h2 class="card-title">Proteínas</h2>
+					<div class="card-actions">
+						<a href="/gestion_productos?tipoSelected=2" class="btn-primary">Gestionar</a>
+						<a href="/visualizar_registro?tipoSelected=2" class="btn-secondary">Ver registros</a>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	</main>
 </div>
@@ -98,212 +108,199 @@
 
 	.dashboard {
 		min-height: 100vh;
-		background: #080b14;
-		font-family: 'Inter', system-ui, sans-serif;
-		position: relative;
-		overflow-x: hidden;
-		color: #f1f5f9;
+		background: #000;
+		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+		color: #f5f5f7;
 	}
 
-	.bg-orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-	.orb {
-		position: absolute; border-radius: 50%;
-		filter: blur(100px); opacity: 0.2;
-		animation: drift 15s ease-in-out infinite;
-	}
-	.orb-1 {
-		width: 600px; height: 600px;
-		background: radial-gradient(circle, #6c3fff 0%, transparent 70%);
-		top: -200px; left: -100px;
-	}
-	.orb-2 {
-		width: 500px; height: 500px;
-		background: radial-gradient(circle, #a855f7 0%, transparent 70%);
-		bottom: -150px; right: -80px;
-		animation-delay: -7s;
-	}
-	@keyframes drift {
-		0%, 100% { transform: scale(1) translate(0,0); }
-		50%       { transform: scale(1.06) translate(20px, -15px); }
-	}
-
+	/* ── Navbar ── */
 	.navbar {
-		position: sticky; top: 0; z-index: 10;
+		position: sticky; top: 0; z-index: 50;
 		display: flex; align-items: center; justify-content: space-between;
-		padding: 0.875rem 2rem;
-		background: rgba(8, 11, 20, 0.8);
-		border-bottom: 1px solid rgba(255,255,255,0.07);
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
+		padding: 0 2rem;
+		height: 52px;
+		background: rgba(0, 0, 0, 0.82);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		backdrop-filter: saturate(180%) blur(20px);
+		-webkit-backdrop-filter: saturate(180%) blur(20px);
 	}
-	.navbar-brand { display: flex; align-items: center; gap: 0.625rem; }
-	.brand-icon {
-		width: 36px; height: 36px; border-radius: 10px;
-		background: linear-gradient(135deg, #6c3fff, #a855f7);
-		display: flex; align-items: center; justify-content: center; color: white;
-		box-shadow: 0 2px 12px rgba(108,63,255,0.4);
-	}
-	.navbar-name {
-		font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em;
-		background: linear-gradient(135deg, #fff 40%, #a78bfa);
-		-webkit-background-clip: text; -webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-	.navbar-user { display: flex; align-items: center; gap: 0.875rem; }
+
+	.navbar-brand { display: flex; align-items: center; }
+	.brand-logo { border-radius: 10px; display: block; }
+
+	.navbar-user { display: flex; align-items: center; gap: 0.75rem; }
+
 	.user-avatar {
-		width: 36px; height: 36px; border-radius: 50%;
-		background: linear-gradient(135deg, #b6914c, #493d27);
+		width: 32px; height: 32px; border-radius: 50%;
+		background: #b6914c;
 		display: flex; align-items: center; justify-content: center;
-		font-size: 0.8rem; font-weight: 700; color: white;
-		box-shadow: 0 2px 12px rgba(73, 79, 27, 0.4);
+		font-size: 0.75rem; font-weight: 700; color: #000;
 		flex-shrink: 0;
 	}
+
 	.logout-btn {
 		display: flex; align-items: center; gap: 0.4rem;
-		background: rgba(255,255,255,0.06);
-		border: 1px solid rgba(255,255,255,0.1);
-		border-radius: 8px; padding: 0.45rem 0.85rem;
-		color: #94a3b8; font-size: 0.8rem; font-family: inherit;
+		background: transparent;
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 8px; padding: 0.4rem 0.8rem;
+		color: rgba(255, 255, 255, 0.6); font-size: 0.8rem; font-family: inherit;
 		cursor: pointer; transition: all 0.2s;
 	}
+
 	.logout-btn:hover:not(:disabled) {
-		background: rgba(239,68,68,0.12);
-		border-color: rgba(239,68,68,0.3);
-		color: #fca5a5;
+		background: rgba(255, 255, 255, 0.06);
+		border-color: rgba(255, 255, 255, 0.25);
+		color: #fff;
 	}
-	.logout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+	.logout-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 	.spinner-sm {
 		width: 12px; height: 12px;
 		border: 2px solid rgba(255,255,255,0.2);
-		border-top-color: #94a3b8;
+		border-top-color: rgba(255,255,255,0.7);
 		border-radius: 50%;
 		animation: spin 0.7s linear infinite;
+		display: inline-block;
 	}
+
 	@keyframes spin { to { transform: rotate(360deg); } }
 
+	/* ── Main ── */
 	.main-content {
-		position: relative; z-index: 1;
-		max-width: 900px; margin: 0 auto;
-		padding: 2.5rem 1.5rem;
+		max-width: 860px; margin: 0 auto;
+		padding: 4rem 1.5rem 3rem;
 	}
 
-	.welcome-card {
+	/* ── Welcome ── */
+	.welcome-section {
 		display: flex; align-items: center; gap: 1.25rem;
-		background: rgba(108, 63, 255, 0.08);
-		border: 1px solid rgba(108, 63, 255, 0.2);
-		border-radius: 20px; padding: 1.75rem 2rem;
-		margin-bottom: 1.75rem;
-		animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+		margin-bottom: 3rem;
+		animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 	}
+
 	.welcome-avatar {
-		width: 60px; height: 60px; border-radius: 50%;
-		background: linear-gradient(135deg, #b6914c, #493d27);
+		width: 56px; height: 56px; border-radius: 50%;
+		background: #b6914c;
 		display: flex; align-items: center; justify-content: center;
-		font-size: 1.4rem; font-weight: 700; color: white;
-		box-shadow: 0 4px 20px rgba(94, 87, 33, 0.5);
+		font-size: 1.3rem; font-weight: 700; color: #000;
 		flex-shrink: 0;
 	}
+
 	.welcome-text h1 {
-		font-size: 1.5rem; font-weight: 700;
-		letter-spacing: -0.02em; color: #f1f5f9;
-		margin-bottom: 0.25rem;
+		font-size: 2rem; font-weight: 700;
+		letter-spacing: -0.03em; color: #f5f5f7;
 	}
-	.welcome-text p { font-size: 0.9rem; color: #64748b; }
 
-	.info-grid {
+	.welcome-text p {
+		font-size: 0.95rem;
+		color: rgba(255, 255, 255, 0.4);
+		margin-top: 0.2rem;
+	}
+
+	/* ── Cards ── */
+	.cards-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 5fr));
-		gap: 4rem;
-		animation: slideUp 0.5s 0.1s cubic-bezier(0.16,1,0.3,1) both;
-		
-	}
-	.info-card {
-		display: flex; align-items: center; gap: 1rem;
-		background: rgba(255,255,255,0.04);
-		border: 1px solid rgba(255,255,255,0.08);
-		border-radius: 16px; padding: 1.25rem 1.4rem;
-		transition: border-color 0.2s, background 0.2s;
-		justify-content: center;
-		flex-direction: column;
-	}
-	.info-card:hover {
-		border-color: rgba(255,255,255,0.14);
-		background: rgba(255,255,255,0.06);
-	}
-	.info-icon {
-		width: 42px; height: 42px; border-radius: 10px;
-		display: flex; align-items: center; justify-content: center;
-		flex-shrink: 0;
-	}
-	.info-label {
-		font-size: 0.72rem; font-weight: 600; color: #4b5563;
-		text-transform: uppercase; letter-spacing: 0.06em;
-		margin-bottom: 0.2rem;
-	}
-	.info-value {
-		font-size: 0.9rem; font-weight: 500; color: #e2e8f0;
-		white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+		gap: 1.5rem;
+		animation: fadeUp 0.5s 0.08s cubic-bezier(0.16, 1, 0.3, 1) both;
 	}
 
-	@keyframes slideUp {
+	.product-card {
+		background: #111;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 18px;
+		overflow: hidden;
+		transition: border-color 0.25s, transform 0.25s;
+	}
+
+	.product-card:hover {
+		border-color: rgba(255, 255, 255, 0.18);
+		transform: translateY(-3px);
+	}
+
+	.card-image-wrap {
+		width: 100%;
+		aspect-ratio: 16/9;
+		background: #1a1a1a;
+		display: flex; align-items: center; justify-content: center;
+		overflow: hidden;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	}
+
+	.card-image {
+		width: 60%; height: 60%; object-fit: contain;
+		transition: transform 0.35s ease;
+	}
+
+	.product-card:hover .card-image { transform: scale(1.05); }
+
+	.card-body {
+		padding: 1.5rem;
+	}
+
+	.card-label {
+		font-size: 0.72rem; font-weight: 600;
+		text-transform: uppercase; letter-spacing: 0.08em;
+		color: #b6914c;
+		display: block; margin-bottom: 0.35rem;
+	}
+
+	.card-title {
+		font-size: 1.4rem; font-weight: 700;
+		letter-spacing: -0.02em; color: #f5f5f7;
+		margin-bottom: 1.25rem;
+	}
+
+	.card-actions {
+		display: flex; flex-direction: column; gap: 0.6rem;
+	}
+
+	.btn-primary {
+		display: flex; align-items: center; justify-content: center;
+		padding: 0.8rem;
+		background: #b6914c;
+		color: #000;
+		border: none; border-radius: 10px;
+		font-size: 0.9rem; font-weight: 700;
+		font-family: inherit; cursor: pointer;
+		text-decoration: none;
+		transition: opacity 0.2s, transform 0.15s;
+	}
+
+	.btn-primary:hover {
+		opacity: 0.88;
+		transform: translateY(-1px);
+	}
+
+	.btn-secondary {
+		display: flex; align-items: center; justify-content: center;
+		padding: 0.8rem;
+		background: transparent;
+		color: rgba(255, 255, 255, 0.6);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 10px;
+		font-size: 0.9rem; font-weight: 600;
+		font-family: inherit; cursor: pointer;
+		text-decoration: none;
+		transition: background 0.2s, border-color 0.2s, color 0.2s;
+	}
+
+	.btn-secondary:hover {
+		background: rgba(255, 255, 255, 0.05);
+		border-color: rgba(255, 255, 255, 0.22);
+		color: #fff;
+	}
+
+	@keyframes fadeUp {
 		from { opacity: 0; transform: translateY(20px); }
 		to   { opacity: 1; transform: translateY(0); }
 	}
 
-	/* ── Primary button ── */
-	.btn-primary {
-		width: 100%;
-		margin-top: 0.5rem;
-		padding: 0.875rem;
-		border: none;
-		border-radius: 12px;
-		background: linear-gradient(135deg, #b6914c, #493d27);
-		color: white;
-		font-size: 0.975rem;
-		font-weight: 600;
-		font-family: inherit;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-		box-shadow: 0 4px 24px rgba(179, 168, 88, 0.4);
-		letter-spacing: 0.01em;
-		text-decoration: none;
+	@media (max-width: 600px) {
+		.navbar { padding: 0 1rem; }
+		.main-content { padding: 2.5rem 1rem 2rem; }
+		.welcome-text h1 { font-size: 1.5rem; }
+		.cards-grid { grid-template-columns: 1fr; }
 	}
-	.btn-primary:hover:not(:disabled) {
-		transform: translateY(-1px);
-		box-shadow: 0 6px 30px rgba(216, 204, 127, 0.4);
-	}
-	.btn-primary:active:not(:disabled) { transform: translateY(0); }
-	.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-	.btn-secundary {
-		width: 100%;
-		margin-top: 0.5rem;
-		padding: 0.875rem;
-		border: none;
-		border-radius: 12px;
-		background: linear-gradient(135deg, rgb(44, 44, 44), #282828);
-		color: white;
-		font-size: 0.975rem;
-		font-weight: 600;
-		font-family: inherit;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-		box-shadow: 0 4px 24px rgba(47, 47, 45, 0.4);
-		letter-spacing: 0.01em;
-		text-decoration: none;
-	}
-	.btn-secundary:hover:not(:disabled) {
-		transform: translateY(-1px);
-		box-shadow: 0 6px 30px rgba(47, 47, 45, 0.4);
-	}
-	.btn-secundary:active:not(:disabled) { transform: translateY(0); }
-	.btn-secundary:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>

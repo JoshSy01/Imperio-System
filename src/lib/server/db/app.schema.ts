@@ -3,7 +3,8 @@ import { relations } from 'drizzle-orm';
 
 export const tipo = pgTable('tipo', {
 	idTipo: bigint('id_tipo', { mode: 'number' }).primaryKey().generatedByDefaultAsIdentity(),
-	nombreTipo: text('nombre_tipo')
+	nombreTipo: text('nombre_tipo'),
+	imagenUrl: varchar('imagen_url')
 });
 
 export const producto = pgTable('producto', {
